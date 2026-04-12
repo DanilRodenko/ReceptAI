@@ -1,32 +1,30 @@
 import os
 import json
-
 from dotenv import load_dotenv
 from groq import Groq
-
 from app.prompts import get_main_prompt, get_extraction_prompt
+
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_CLIENT = Groq(api_key=GROQ_API_KEY)
 
-conversation_history = [
-    {"role": "system", "content": get_main_prompt()}
-]
 
+def ask_groq(user_text, history):
+    if not history:
+        history = [{"role": "system", "content": get_main_prompt()}]
 
-def ask_groq(user_text):
-    conversation_history.append({"role": "user", "content": user_text})
+    history.append({"role": "user", "content": user_text})
 
     response = GROQ_CLIENT.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=conversation_history,
+        messages=history,
         max_tokens=300
     )
 
     answer = response.choices[0].message.content
-    conversation_history.append({"role": "assistant", "content": answer})
-    return answer
+    history.append({"role": "assistant", "content": answer})
+    return answer, history
 
 
 def extract_appointment_data(history):

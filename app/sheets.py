@@ -12,14 +12,32 @@ def get_booked_slots():
     sh = gc.open_by_key(SPREADSHEET_ID)
     worksheet = sh.get_worksheet(0)
     records = worksheet.get_all_records()
-    booked_slots = [(str(r['date']), str(r['time'])) for r in records]
+    booked_slots = [
+        {
+            "date": str(r['date']),
+            "time": str(r['time']),
+            "duration_minutes": int(r['duration_minute'] or 30)
+        }
+        for r in records
+    ]
     return booked_slots
 
 
-def is_slot_available(date, time, booked_slots):
-    for booked_slot in booked_slots:
-        if booked_slot == (date, time):
-            return False
+def is_slot_available(new_date, new_time, new_duration, booked_slots):
+    def to_minutes(t_str):
+        h, m = map(int, t_str.split(':'))
+        return h * 60 + m
+
+    new_start = to_minutes(new_time)
+    new_end = new_start + int(new_duration)
+
+    for appt in booked_slots:
+        if appt['date'] == new_date:
+            exist_start = to_minutes(appt['time'])
+            exist_end = exist_start + int(appt['duration_minutes'])
+            if new_start < exist_end and new_end > exist_start:
+                return False
+
     return True
 
 
