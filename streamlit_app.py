@@ -2,7 +2,7 @@ import tempfile
 import streamlit as st
 import pandas as pd
 from app.pipeline import run_pipeline
-from app.sheets import get_booked_slots
+from app.sheets import get_booked_slots, get_all_appointments
 
 
 st.set_page_config(
@@ -31,9 +31,9 @@ with left:
 
 
 with right:
-    data = get_booked_slots()
+    data = get_all_appointments()
     if data:
-        df = pd.DataFrame(data, columns=["Date", "Time"])
+        df = pd.DataFrame(data)
         st.subheader("Booked slots")
         st.dataframe(df, use_container_width=True, hide_index=True)
     else:

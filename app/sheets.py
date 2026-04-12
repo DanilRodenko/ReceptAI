@@ -23,8 +23,14 @@ def is_slot_available(date, time, booked_slots):
     return True
 
 
-def save_appointment(name, date, time):
+def get_all_appointments():
     sh = gc.open_by_key(SPREADSHEET_ID)
     worksheet = sh.get_worksheet(0)
-    worksheet.append_row([name, date, time], value_input_option='USER_ENTERED')
+    return worksheet.get_all_records()
+
+
+def save_appointment(name, date, time, service, duration_minute):
+    sh = gc.open_by_key(SPREADSHEET_ID)
+    worksheet = sh.get_worksheet(0)
+    worksheet.append_row([name, date, time, service, duration_minute], value_input_option='USER_ENTERED')
     return True
