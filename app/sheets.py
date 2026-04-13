@@ -1,23 +1,25 @@
 import os
-import json
 import gspread
 import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
 
-try:
-    credentials_dict = dict(st.secrets["gcp_service_account"])
-    gc = gspread.service_account_from_dict(credentials_dict)
-    SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
-except Exception as e:
-    print(f"Secrets error: {e}")
-    SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-    gc = gspread.service_account(filename="credentials.json")
+
+def get_client():
+    try:
+        credentials_dict = dict(st.secrets["gcp_service_account"])
+        gc = gspread.service_account_from_dict(credentials_dict)
+        spreadsheet_id = st.secrets["SPREADSHEET_ID"]
+    except Exception:
+        spreadsheet_id = os.getenv("SPREADSHEET_ID")
+        gc = gspread.service_account(filename="credentials.json")
+    return gc, spreadsheet_id
 
 
 def get_booked_slots():
-    sh = gc.open_by_key(SPREADSHEET_ID)
+    gc, spreadsheet_id = get_client()
+    sh = gc.open_by_key(spreadsheet_id)
     worksheet = sh.get_worksheet(0)
     records = worksheet.get_all_records()
     booked_slots = [
@@ -50,13 +52,15 @@ def is_slot_available(new_date, new_time, new_duration, booked_slots):
 
 
 def get_all_appointments():
-    sh = gc.open_by_key(SPREADSHEET_ID)
+    gc, spreadsheet_id = get_client()
+    sh = gc.open_by_key(spreadsheet_id)
     worksheet = sh.get_worksheet(0)
     return worksheet.get_all_records()
 
 
 def save_appointment(name, date, time, service, duration_minute):
-    sh = gc.open_by_key(SPREADSHEET_ID)
+    gc, spreadsheet_id = get_client()
+    sh = gc.open_by_key(spreadsheet_id)
     worksheet = sh.get_worksheet(0)
     worksheet.append_row([name, date, time, service, duration_minute], value_input_option='USER_ENTERED')
     return True
