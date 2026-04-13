@@ -1,5 +1,7 @@
-faster-whisper
-groq
-gspread
-streamlit
-pandas
+faster-whisper==1.2.1
+groq==1.1.2
+gspread==6.2.1
+gTTS==2.5.4
+streamlit==1.56.0
+pandas==3.0.2
+python-dotenv==1.2.2

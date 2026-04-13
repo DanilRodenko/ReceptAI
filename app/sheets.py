@@ -1,11 +1,18 @@
 import os
+import json
 import gspread
+import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-gc = gspread.service_account(filename="credentials.json")
+try:
+    SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
+    credentials_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
+    gc = gspread.service_account_from_dict(credentials_dict)
+except Exception:
+    SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+    gc = gspread.service_account(filename="credentials.json")
 
 
 def get_booked_slots():
