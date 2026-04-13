@@ -10,7 +10,8 @@ try:
     credentials_dict = dict(st.secrets["gcp_service_account"])
     gc = gspread.service_account_from_dict(credentials_dict)
     SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
-except Exception:
+except Exception as e:
+    print(f"Secrets error: {e}")
     SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
     gc = gspread.service_account(filename="credentials.json")
 
