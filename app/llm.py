@@ -37,7 +37,7 @@ def extract_appointment_data(history):
 
     response = GROQ_CLIENT.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=history,
+        messages=messages,
         response_format={"type": "json_object"}
     )
 
