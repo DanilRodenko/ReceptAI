@@ -1,4 +1,4 @@
-# ReceptAI 🦷
+# ReceptAI
 
 AI-powered voice appointment booking assistant for dental clinics.
 
