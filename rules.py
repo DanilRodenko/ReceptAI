@@ -2,13 +2,21 @@ from datetime import date, datetime, timedelta
 
 import holidays
 
-from config import TIMEZONE, OPEN_HOUR, CLOSE_HOUR, WORKING_DAYS, HOLIDAY_COUNTRY, SLOT_MINUTES
+from config import (
+    CLOSE_HOUR,
+    HOLIDAY_COUNTRY,
+    OPEN_HOUR,
+    SERVICE_DURATION_MINUTES,
+    SLOT_MINUTES,
+    WORKING_DAYS,
+)
 
 ie_holidays = holidays.country_holidays(HOLIDAY_COUNTRY)
 
 
 def is_working_day(day: date) -> bool:
     return day.weekday() in WORKING_DAYS and day not in ie_holidays
+
 
 def is_on_grid(start: datetime) -> bool:
     return start.minute % SLOT_MINUTES == 0
@@ -32,3 +40,28 @@ def overlaps(start: datetime, duration: int, booked: list[tuple[datetime, int]])
         if start < booked_end and new_end > booked_start:
             return True
     return False
+
+
+def validate_booking(
+    start: datetime,
+    service: str,
+    booked: list[tuple[datetime, int]],
+    now: datetime,
+) -> str | None:
+    """Return a rejection reason, or None if the booking is valid."""
+    if service not in SERVICE_DURATION_MINUTES:
+        return f"Unknown service: {service}."
+    duration = SERVICE_DURATION_MINUTES[service]
+
+    if not is_in_future(start, now):
+        return "This time is in the past."
+    if not is_working_day(start.date()):
+        return "The clinic is closed on this day."
+    if not is_on_grid(start):
+        return f"Appointments start every {SLOT_MINUTES} minutes."
+    if not is_within_hours(start, duration):
+        return f"The appointment must fit within {OPEN_HOUR}:00-{CLOSE_HOUR}:00."
+    if overlaps(start, duration, booked):
+        return "This time slot is already taken."
+
+    return None
