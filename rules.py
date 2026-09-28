@@ -19,3 +19,16 @@ def is_within_hours(start: datetime, duration: int) -> bool:
     opening = start.replace(hour=OPEN_HOUR, minute=0)
     closing = start.replace(hour=CLOSE_HOUR, minute=0)
     return start >= opening and end <= closing
+
+
+def is_in_future(start: datetime, now: datetime) -> bool:
+    return start > now
+
+
+def overlaps(start: datetime, duration: int, booked: list[tuple[datetime, int]]) -> bool:
+    new_end = start + timedelta(minutes=duration)
+    for booked_start, booked_duration in booked:
+        booked_end = booked_start + timedelta(minutes=booked_duration)
+        if start < booked_end and new_end > booked_start:
+            return True
+    return False
