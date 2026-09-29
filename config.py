@@ -29,3 +29,8 @@ SERVICE_DURATION_MINUTES = {
 }
 
 SERVICES = list(SERVICE_DURATION_MINUTES.keys())
+
+
+# --- Google Sheets --- 
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+GOOGLE_CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json")
