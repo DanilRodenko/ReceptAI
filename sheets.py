@@ -26,3 +26,13 @@ def row_to_slot(row: dict) -> tuple[datetime, int]:
 def get_booked_slots() -> list[tuple[datetime, int]]:
     rows = _get_worksheet().get_all_records()
     return [row_to_slot(row) for row in rows]
+
+
+def add_booking(name: str, service: str, start: datetime, duration: int, notes: str = "") -> None:
+    date_str = start.strftime("%Y-%m-%d")
+    time_str = start.strftime("%H:%M")
+    _get_worksheet().append_row(
+        [name, service, date_str, time_str, duration, notes],
+        value_input_option="RAW",
+    )
+
