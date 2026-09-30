@@ -15,9 +15,14 @@ def _get_worksheet():
     return gc.open_by_key(SPREADSHEET_ID).sheet1
 
 
-def row_to_slot(row):
+def row_to_slot(row: dict) -> tuple[datetime, int]:
     date_str = row['date'] + " " + row['time']
     date_n_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
     duration = int(row['duration_minutes'])
 
     return date_n_time, duration
+
+
+def get_booked_slots() -> list[tuple[datetime, int]]:
+    rows = _get_worksheet().get_all_records()
+    return [row_to_slot(row) for row in rows]
