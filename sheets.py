@@ -36,3 +36,6 @@ def add_booking(name: str, service: str, start: datetime, duration: int, notes: 
         value_input_option="RAW",
     )
 
+
+def get_all_rows() -> list[dict]:
+    return _get_worksheet().get_all_records()
