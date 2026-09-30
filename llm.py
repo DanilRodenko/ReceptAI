@@ -15,11 +15,12 @@ def _get_client():
     return groq_client
 
 
-def _complete(messages: list[dict], json_mode: bool = False) -> str:
+def _complete(messages: list[dict], temperature: float, json_mode: bool = False) -> str:
     kwargs = {
         "model": GROQ_MODEL,
         "messages": messages,
         "max_tokens": 300,
+        "temperature": temperature,
     }
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
@@ -31,3 +32,12 @@ def _complete(messages: list[dict], json_mode: bool = False) -> str:
         response = _get_client().chat.completions.create(**kwargs)
 
     return response.choices[0].message.content
+
+
+def chat(messages: list[dict]) -> str:
+    return _complete(messages, temperature=0.7)
+
+
+def extract(messages: list[dict]) -> dict:
+    raw = _complete(messages, json_mode=True, temperature=0)
+    return json.loads(raw)
