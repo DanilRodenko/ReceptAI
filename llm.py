@@ -1,9 +1,9 @@
 import functools
 import json
 
-from groq import Groq
+from groq import Groq, RateLimitError
 
-from config import GROQ_API_KEY, GROQ_MODEL
+from config import GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL
 
 
 @functools.lru_cache
@@ -16,11 +16,18 @@ def _get_client():
 
 
 def _complete(messages: list[dict], json_mode: bool = False) -> str:
-    response = _get_client().chat.completions.create(
-        model=GROQ_MODEL,
-        messages=messages,
-        max_tokens=300,
-    )
+    kwargs = {
+        "model": GROQ_MODEL,
+        "messages": messages,
+        "max_tokens": 300,
+    }
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
 
-    answer = response.choices[0].message.content
-    return answer
+    try:
+        response = _get_client().chat.completions.create(**kwargs)
+    except RateLimitError:
+        kwargs["model"] = GROQ_FALLBACK_MODEL
+        response = _get_client().chat.completions.create(**kwargs)
+
+    return response.choices[0].message.content
