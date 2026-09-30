@@ -1,5 +1,6 @@
 import functools
 from datetime import datetime
+from unittest import result
 
 import gspread
 
@@ -13,3 +14,11 @@ def _get_worksheet():
 
     gc = gspread.service_account(filename=GOOGLE_CREDENTIALS_PATH)
     return gc.open_by_key(SPREADSHEET_ID).sheet1
+
+
+def parse_booking(row):
+    date_str = row['date'] + " " + row['time']
+    date_n_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+    duration = int(row['duration_minutes'])
+    result = (date_n_time, duration)
+    return result
