@@ -1,7 +1,8 @@
 from datetime import date, datetime
+from operator import imod
+from sys import int_info
 
 import pytest
-
 from rules import (
     is_on_grid,
     is_within_hours,
@@ -9,6 +10,8 @@ from rules import (
     overlaps,
     validate_booking,
 )
+
+from sheets import row_to_slot
 
 NOW = datetime(2026, 10, 5, 12, 0)  # Monday noon, fixed for all tests
 BOOKED = [(datetime(2026, 10, 6, 10, 0), 60)]  # existing appointment 10:00–11:00
@@ -83,3 +86,4 @@ def test_validate_booking_rejects(start, service, expected_reason):
 
 def test_valid_booking_returns_none():
     assert validate_booking(datetime(2026, 10, 6, 11, 0), "cleaning", BOOKED, NOW) is None
+
