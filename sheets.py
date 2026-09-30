@@ -1,6 +1,5 @@
 import functools
 from datetime import datetime
-from unittest import result
 
 import gspread
 
@@ -20,5 +19,5 @@ def row_to_slot(row):
     date_str = row['date'] + " " + row['time']
     date_n_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
     duration = int(row['duration_minutes'])
-    result = (date_n_time, duration)
-    return result
+
+    return date_n_time, duration

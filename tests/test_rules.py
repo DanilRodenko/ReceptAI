@@ -11,8 +11,6 @@ from rules import (
     validate_booking,
 )
 
-from sheets import row_to_slot
-
 NOW = datetime(2026, 10, 5, 12, 0)  # Monday noon, fixed for all tests
 BOOKED = [(datetime(2026, 10, 6, 10, 0), 60)]  # existing appointment 10:00–11:00
 
