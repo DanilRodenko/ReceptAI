@@ -1,5 +1,6 @@
 FIELDS = ("name", "service", "date", "time", "notes")
 
+REQUIRED_FIELDS = ("name", "service", "date", "time")
 
 def merge_draft(draft: dict, extracted: dict) -> dict:
     merged = dict(draft)
@@ -9,3 +10,7 @@ def merge_draft(draft: dict, extracted: dict) -> dict:
             merged[field] = value
 
     return merged
+
+
+def missing_fields(draft: dict) -> list[str]:
+    return [field for field in REQUIRED_FIELDS if not draft.get(field)]
