@@ -19,7 +19,8 @@ def _complete(messages: list[dict], temperature: float, json_mode: bool = False)
     kwargs = {
         "model": GROQ_MODEL,
         "messages": messages,
-        "max_tokens": 300,
+        "max_tokens": 1000,
+        "reasoning_effort": "low",
         "temperature": temperature,
     }
     if json_mode:
