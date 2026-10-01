@@ -3,3 +3,4 @@ python-dotenv
 gspread
 groq
 gtts
+streamlit

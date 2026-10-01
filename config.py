@@ -17,6 +17,7 @@ CLOSE_HOUR = 17
 SLOT_MINUTES = 30
 WORKING_DAYS = {0, 1, 2, 3, 4}  # Mon–Fri, as in date.weekday()
 HOLIDAY_COUNTRY = "IE"
+MAX_DAYS_AHEAD = 30
 
 # --- Services ---
 SERVICE_DURATION_MINUTES = {

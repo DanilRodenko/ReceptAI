@@ -9,6 +9,7 @@ from config import (
     SERVICE_DURATION_MINUTES,
     SLOT_MINUTES,
     WORKING_DAYS,
+    MAX_DAYS_AHEAD
 )
 
 ie_holidays = holidays.country_holidays(HOLIDAY_COUNTRY)
@@ -63,5 +64,7 @@ def validate_booking(
         return f"The appointment must fit within {OPEN_HOUR}:00-{CLOSE_HOUR}:00."
     if overlaps(start, duration, booked):
         return "This time slot is already taken."
+    if start.date() > now.date() + timedelta(days=MAX_DAYS_AHEAD):
+        return f"Bookings are only possible up to {MAX_DAYS_AHEAD} days ahead."
 
     return None

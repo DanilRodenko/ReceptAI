@@ -36,7 +36,7 @@ def _complete(messages: list[dict], temperature: float, json_mode: bool = False)
 
 
 def chat(messages: list[dict]) -> str:
-    return _complete(messages, temperature=0.7)
+    return _complete(messages, temperature=0.4)
 
 
 def extract(messages: list[dict]) -> dict:

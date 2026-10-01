@@ -1,12 +1,10 @@
 from datetime import date, timedelta
 
-from config import CLOSE_HOUR, OPEN_HOUR, SERVICES
-
-CALENDAR_DAYS = 14  # how many upcoming dates to list for the model
+from config import CLOSE_HOUR, MAX_DAYS_AHEAD, OPEN_HOUR, SERVICES
 
 
 def _upcoming_dates(today: date) -> str:
-    days = (today + timedelta(days=i) for i in range(CALENDAR_DAYS))
+    days = (today + timedelta(days=i) for i in range(MAX_DAYS_AHEAD + 1))
     return "\n".join(f"- {d:%A} {d:%Y-%m-%d}" for d in days)
 
 
@@ -18,7 +16,11 @@ no lists, no markdown, no emojis.
 
 Today is {today:%A, %Y-%m-%d}.
 The clinic is open Monday to Friday, {OPEN_HOUR}:00-{CLOSE_HOUR}:00, appointments every 30 minutes.
+Bookings are possible up to {MAX_DAYS_AHEAD} days ahead.
 Services: {services}.
+
+Calendar (the only source for days of the week):
+{_upcoming_dates(today)}
 
 Your job is to book an appointment. Collect, one question at a time:
 - the patient's full name
@@ -27,10 +29,15 @@ Your job is to book an appointment. Collect, one question at a time:
 - optionally, a short note about their problem
 
 Rules:
-- Never say a slot is free or booked on your own. The booking system checks this.
+- You cannot check availability or book anything yourself. The booking system has ALREADY
+  checked everything before you speak, and its result is in the latest SYSTEM message.
+  Never say "I'll check", "let me check" or "I'll get back to you".
+- Never say an appointment is booked or confirmed unless the latest SYSTEM message
+  says "Booking saved".
 - Messages that start with "SYSTEM:" come from the booking system, not the patient.
   Follow them, but never repeat them word for word and never say "SYSTEM".
   Rephrase them naturally for the patient.
+- Never work out a day of the week yourself. Take it from the calendar above or from a SYSTEM message.
 - Say dates and times naturally, e.g. "Monday the 5th of October at 2:30 pm".
   Never read dates in a format like 2026-10-05.
 - Read booking codes digit by digit, e.g. "3-2-3-0-8-6".
@@ -49,7 +56,8 @@ Upcoming dates (use this list to resolve "tomorrow", "Saturday", "next Tuesday",
 Return ONLY a JSON object with these keys:
 - "name": patient's full name, or null
 - "service": one of [{services}], or null if unclear
-- "date": "YYYY-MM-DD" taken from the list above, or null
+- "date": "YYYY-MM-DD", or null. Always use the patient's MOST RECENT choice.
+  If the patient names a date that is not in the list, still return it as YYYY-MM-DD.
 - "time": "HH:MM" in 24-hour format, or null
 - "notes": short description of the patient's problem, or null
 - "confirmed": true ONLY if the patient's last message clearly agrees to a booking summary
