@@ -2,3 +2,4 @@ holidays
 python-dotenv
 gspread
 groq
+gtts

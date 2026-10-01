@@ -35,7 +35,7 @@ def use_fake(monkeypatch):
 
     def _install(completions):
         fake_client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
-        monkeypatch.setattr(llm, "_get_client", lambda: fake_client)
+        monkeypatch.setattr(llm, "get_groq_client", lambda: fake_client)
         monkeypatch.setattr(llm, "RateLimitError", FakeRateLimitError)
         return completions
 

@@ -8,6 +8,7 @@ load_dotenv()  # loads .env locally; on Streamlit Cloud vars come from Secrets
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_FALLBACK_MODEL = os.getenv("GROQ_FALLBACK_MODEL", "openai/gpt-oss-20b")
+WHISPER_MODEL  = "whisper-large-v3-turbo"
 
 # --- Clinic schedule ---
 TIMEZONE = "Europe/Dublin"

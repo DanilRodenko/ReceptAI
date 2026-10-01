@@ -7,7 +7,7 @@ from config import GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL
 
 
 @functools.lru_cache
-def _get_client():
+def get_groq_client():
     if not GROQ_API_KEY:
         raise ValueError("GROQ_API_KEY is not set in .env")
     
@@ -27,10 +27,10 @@ def _complete(messages: list[dict], temperature: float, json_mode: bool = False)
         kwargs["response_format"] = {"type": "json_object"}
 
     try:
-        response = _get_client().chat.completions.create(**kwargs)
+        response = get_groq_client().chat.completions.create(**kwargs)
     except RateLimitError:
         kwargs["model"] = GROQ_FALLBACK_MODEL
-        response = _get_client().chat.completions.create(**kwargs)
+        response = get_groq_client().chat.completions.create(**kwargs)
 
     return response.choices[0].message.content
 
