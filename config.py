@@ -34,3 +34,8 @@ SERVICES = list(SERVICE_DURATION_MINUTES.keys())
 # --- Google Sheets --- 
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 GOOGLE_CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json")
+
+
+# --- Formats ---
+DATE_FORMAT = "%Y-%m-%d"
+TIME_FORMAT = "%H:%M"

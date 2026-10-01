@@ -2,6 +2,8 @@ from datetime import datetime
 from re import escape
 
 
+from config import DATE_FORMAT, TIME_FORMAT
+
 FIELDS = ("name", "service", "date", "time", "notes")
 
 REQUIRED_FIELDS = ("name", "service", "date", "time")
@@ -23,7 +25,7 @@ def missing_fields(draft: dict) -> list[str]:
 def requested_start(draft: dict) -> datetime | None:
     date_str = f"{draft['date']} {draft['time']}"
     try:
-        date_n_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+        date_n_time = datetime.strptime(date_str, f"{DATE_FORMAT} {TIME_FORMAT}")
         return date_n_time
     except ValueError:
         return None

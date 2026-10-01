@@ -4,7 +4,7 @@ from datetime import datetime
 
 import gspread
 
-from config import GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID
+from config import GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
 
 
 @functools.lru_cache
@@ -26,7 +26,7 @@ def generate_booking_code(existing: set[str]) -> str:
 
 def row_to_slot(row: dict) -> tuple[datetime, int]:
     date_str = row['date'] + " " + row['time']
-    date_n_time = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+    date_n_time = datetime.strptime(date_str, f"{DATE_FORMAT} {TIME_FORMAT}")
     duration = int(row['duration_minutes'])
 
     return date_n_time, duration
@@ -41,8 +41,8 @@ def add_booking(name: str, service: str, start: datetime, duration: int, notes: 
     existing = {str(row["booking_code"]) for row in get_all_rows()}
     booking_code = generate_booking_code(existing)
 
-    date_str = start.strftime("%Y-%m-%d")
-    time_str = start.strftime("%H:%M")
+    date_str = start.strftime(DATE_FORMAT)
+    time_str = start.strftime(TIME_FORMAT)
     _get_worksheet().append_row(
         [booking_code, name, service, date_str, time_str, duration, notes],
         value_input_option="RAW",
