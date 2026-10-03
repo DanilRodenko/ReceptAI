@@ -2,11 +2,11 @@ import re
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
-from config import DATE_FORMAT, SERVICE_DURATION_MINUTES, TIME_FORMAT, TIMEZONE
-from llm import chat, extract
-from prompts import get_extraction_prompt, get_system_prompt
-from rules import is_working_day, validate_booking
-from sheets import add_booking, get_booked_slots
+from app.config import DATE_FORMAT, SERVICE_DURATION_MINUTES, TIME_FORMAT, TIMEZONE
+from app.llm import chat, extract
+from app.prompts import get_extraction_prompt, get_system_prompt
+from app.rules import is_working_day, validate_booking
+from app.sheets import add_booking, get_booked_slots
 
 FIELDS = ("name", "service", "date", "time", "notes")
 REQUIRED_FIELDS = ("name", "service", "date", "time")

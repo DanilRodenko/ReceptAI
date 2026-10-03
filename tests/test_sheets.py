@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import sheets
-from sheets import generate_booking_code, row_to_slot
+from app import sheets
+from app.sheets import generate_booking_code, row_to_slot
 
 
 def test_row_to_slot_parses_date_time_and_duration():

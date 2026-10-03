@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 import holidays
 
-from config import (
+from app.config import (
     CLOSE_HOUR,
     HOLIDAY_COUNTRY,
     OPEN_HOUR,

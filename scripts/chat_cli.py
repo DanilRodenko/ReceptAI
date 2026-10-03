@@ -1,4 +1,4 @@
-from pipeline import new_session, handle_turn, now_local
+from app.pipeline import new_session, handle_turn, now_local
 
 session = new_session()
 

@@ -1,5 +1,5 @@
-from config import WHISPER_MODEL
-from llm import get_groq_client
+from app.config import WHISPER_MODEL
+from app.llm import get_groq_client
 
 
 def transcribe(audio_bytes: bytes, filename: str = "audio.wav") -> str:

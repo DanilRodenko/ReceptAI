@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-import pipeline
-from pipeline import merge_draft, missing_fields, new_session, requested_start
+from app import pipeline
+from app.pipeline import merge_draft, missing_fields, new_session, requested_start
 
 NOW = datetime(2026, 10, 5, 12, 0)  # Monday noon
 

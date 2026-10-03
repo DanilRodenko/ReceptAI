@@ -3,7 +3,7 @@ from operator import imod
 from sys import int_info
 
 import pytest
-from rules import (
+from app.rules import (
     is_on_grid,
     is_within_hours,
     is_working_day,

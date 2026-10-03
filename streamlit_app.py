@@ -1,9 +1,9 @@
 import streamlit as st
 
-from pipeline import handle_turn, new_session, now_local
-from sheets import get_all_rows
-from stt import transcribe
-from tts import speak
+from app.pipeline import handle_turn, new_session, now_local
+from app.sheets import get_all_rows
+from app.stt import transcribe
+from app.tts import speak
 
 GREETING = "Hi, this is Sarah from Elite Dental Center. How can I help you today?"
 STATE_LABELS = {

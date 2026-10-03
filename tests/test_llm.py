@@ -2,8 +2,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import llm
-from config import GROQ_FALLBACK_MODEL, GROQ_MODEL
+from app import llm
+from app.config import GROQ_FALLBACK_MODEL, GROQ_MODEL
 
 MESSAGES = [{"role": "user", "content": "Hi"}]
 

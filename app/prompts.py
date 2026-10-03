@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from config import CLOSE_HOUR, MAX_DAYS_AHEAD, OPEN_HOUR, SERVICES
+from app.config import CLOSE_HOUR, MAX_DAYS_AHEAD, OPEN_HOUR, SERVICES
 
 
 def _upcoming_dates(today: date) -> str:

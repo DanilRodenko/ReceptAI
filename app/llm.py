@@ -3,7 +3,7 @@ import json
 
 from groq import Groq, RateLimitError
 
-from config import GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL
+from app.config import GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL
 
 
 @functools.lru_cache

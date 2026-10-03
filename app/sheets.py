@@ -5,7 +5,7 @@ from datetime import datetime
 
 import gspread
 
-from config import GOOGLE_CREDENTIALS_JSON, GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
+from app.config import GOOGLE_CREDENTIALS_JSON, GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
 
 
 @functools.lru_cache
