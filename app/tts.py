@@ -1,10 +1,10 @@
-import os
+import io
+
 from gtts import gTTS
-import tempfile
 
 
-def speak(text):
-    tts = gTTS(text=text)
-    tmp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-    tts.save(tmp_file.name)
-    return tmp_file.name
+def speak(text: str) -> bytes:
+    buffer = io.BytesIO()
+    tts = gTTS(text=text, lang="en", tld="ie")
+    tts.write_to_fp(buffer)
+    return buffer.getvalue()

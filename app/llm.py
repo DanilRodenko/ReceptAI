@@ -1,44 +1,44 @@
-import os
+import functools
 import json
-import streamlit as st
-from dotenv import load_dotenv
-from groq import Groq
-from app.prompts import get_main_prompt, get_extraction_prompt
 
-load_dotenv()
+from groq import Groq, RateLimitError
 
-try:
-    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-except Exception:
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-GROQ_CLIENT = Groq(api_key=GROQ_API_KEY)
+from app.config import GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL
 
 
-def ask_groq(user_text, history):
-    if not history:
-        history = [{"role": "system", "content": get_main_prompt()}]
-
-    history.append({"role": "user", "content": user_text})
-
-    response = GROQ_CLIENT.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=history,
-        max_tokens=300
-    )
-
-    answer = response.choices[0].message.content
-    history.append({"role": "assistant", "content": answer})
-    return answer, history
+@functools.lru_cache
+def get_groq_client():
+    if not GROQ_API_KEY:
+        raise ValueError("GROQ_API_KEY is not set in .env")
+    
+    groq_client = Groq(api_key=GROQ_API_KEY)
+    return groq_client
 
 
-def extract_appointment_data(history):
-    messages = history + [{"role": "system", "content": get_extraction_prompt()}]
+def _complete(messages: list[dict], temperature: float, json_mode: bool = False) -> str:
+    kwargs = {
+        "model": GROQ_MODEL,
+        "messages": messages,
+        "max_tokens": 1000,
+        "reasoning_effort": "low",
+        "temperature": temperature,
+    }
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
 
-    response = GROQ_CLIENT.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        response_format={"type": "json_object"}
-    )
+    try:
+        response = get_groq_client().chat.completions.create(**kwargs)
+    except RateLimitError:
+        kwargs["model"] = GROQ_FALLBACK_MODEL
+        response = get_groq_client().chat.completions.create(**kwargs)
 
-    return json.loads(response.choices[0].message.content)
+    return response.choices[0].message.content
+
+
+def chat(messages: list[dict]) -> str:
+    return _complete(messages, temperature=0.4)
+
+
+def extract(messages: list[dict]) -> dict:
+    raw = _complete(messages, json_mode=True, temperature=0)
+    return json.loads(raw)

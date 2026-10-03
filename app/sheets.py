@@ -1,66 +1,59 @@
-import os
+import json
+import functools
+import secrets
+from datetime import datetime
+
 import gspread
-import streamlit as st
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.config import GOOGLE_CREDENTIALS_JSON, GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
 
 
-def get_client():
-    try:
-        credentials_dict = dict(st.secrets["gcp_service_account"])
-        gc = gspread.service_account_from_dict(credentials_dict)
-        spreadsheet_id = st.secrets["SPREADSHEET_ID"]
-    except Exception:
-        spreadsheet_id = os.getenv("SPREADSHEET_ID")
-        gc = gspread.service_account(filename="credentials.json")
-    return gc, spreadsheet_id
+@functools.lru_cache
+def _get_worksheet():
+    if not SPREADSHEET_ID:
+        raise ValueError("SPREADSHEET_ID is not set in .env")
+
+    if GOOGLE_CREDENTIALS_JSON:
+        gc = gspread.service_account_from_dict(json.loads(GOOGLE_CREDENTIALS_JSON))
+    else:
+        gc = gspread.service_account(filename=GOOGLE_CREDENTIALS_PATH)
+    
+    return gc.open_by_key(SPREADSHEET_ID).sheet1
 
 
-def get_booked_slots():
-    gc, spreadsheet_id = get_client()
-    sh = gc.open_by_key(spreadsheet_id)
-    worksheet = sh.get_worksheet(0)
-    records = worksheet.get_all_records()
-    booked_slots = [
-        {
-            "date": str(r['date']),
-            "time": str(r['time']),
-            "duration_minutes": int(r['duration_minute'] or 30)
-        }
-        for r in records
-    ]
-    return booked_slots
+def generate_booking_code(existing: set[str]) -> str:
+    booking_code = f"{secrets.randbelow(1_000_000):06d}"
+    while booking_code in existing:
+        booking_code = f"{secrets.randbelow(1_000_000):06d}"
+
+    return booking_code
 
 
-def is_slot_available(new_date, new_time, new_duration, booked_slots):
-    def to_minutes(t_str):
-        h, m = map(int, t_str.split(':'))
-        return h * 60 + m
+def row_to_slot(row: dict) -> tuple[datetime, int]:
+    date_str = row['date'] + " " + row['time']
+    date_n_time = datetime.strptime(date_str, f"{DATE_FORMAT} {TIME_FORMAT}")
+    duration = int(row['duration_minutes'])
 
-    new_start = to_minutes(new_time)
-    new_end = new_start + int(new_duration)
-
-    for appt in booked_slots:
-        if appt['date'] == new_date:
-            exist_start = to_minutes(appt['time'])
-            exist_end = exist_start + int(appt['duration_minutes'])
-            if new_start < exist_end and new_end > exist_start:
-                return False
-
-    return True
+    return date_n_time, duration
 
 
-def get_all_appointments():
-    gc, spreadsheet_id = get_client()
-    sh = gc.open_by_key(spreadsheet_id)
-    worksheet = sh.get_worksheet(0)
-    return worksheet.get_all_records()
+def get_booked_slots() -> list[tuple[datetime, int]]:
+    rows = _get_worksheet().get_all_records()
+    return [row_to_slot(row) for row in rows]
 
 
-def save_appointment(name, date, time, service, duration_minute):
-    gc, spreadsheet_id = get_client()
-    sh = gc.open_by_key(spreadsheet_id)
-    worksheet = sh.get_worksheet(0)
-    worksheet.append_row([name, date, time, service, duration_minute], value_input_option='USER_ENTERED')
-    return True
+def add_booking(name: str, service: str, start: datetime, duration: int, notes: str = "") -> str:
+    existing = {str(row["booking_code"]) for row in get_all_rows()}
+    booking_code = generate_booking_code(existing)
+
+    date_str = start.strftime(DATE_FORMAT)
+    time_str = start.strftime(TIME_FORMAT)
+    _get_worksheet().append_row(
+        [booking_code, name, service, date_str, time_str, duration, notes],
+        value_input_option="RAW",
+    )
+    return booking_code
+
+
+def get_all_rows() -> list[dict]:
+    return _get_worksheet().get_all_records()

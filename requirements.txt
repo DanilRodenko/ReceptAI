@@ -1,8 +1,6 @@
-faster-whisper==1.2.1
-groq==1.1.2
+groq==1.7.0
 gspread==6.2.1
 gTTS==2.5.4
-streamlit==1.56.0
-pandas==3.0.2
-python-dotenv==1.2.2
-python-telegram-bot==20.7
+holidays==0.105
+python-dotenv==1.2.3
+streamlit==1.64.0
