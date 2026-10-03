@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
 
@@ -183,7 +183,34 @@ def test_stalling_reply_is_replaced(world):
     reply = pipeline.handle_turn(session, "Alex Murphy, cleaning", NOW)
 
     assert "get back to you" not in reply
-    assert "date and time" in reply
+    assert reply == "Which day would suit you?"  # the ready-made question for the first missing field
+
+
+def test_glued_sentences_are_replaced(world):
+    # The live bug: three drafts of one question glued together, with a SYSTEM note in the middle.
+    fake = world([NAME_AND_SERVICE])
+    fake.sarah_says = "Which day suits you, Alex?We need to ask date and time.Could you tell me?"
+    session = new_session()
+
+    reply = pipeline.handle_turn(session, "Alex Murphy, cleaning", NOW)
+
+    assert reply == "Which day would suit you?"
+
+
+def test_normal_punctuation_is_not_treated_as_glued():
+    session = new_session()
+    ok_reply = "We open at 9 A.M. on weekdays. Which day would suit you?"
+
+    assert not pipeline._breaks_rules(ok_reply, session, just_booked=False)
+
+
+def test_missing_fields_are_asked_one_at_a_time(world):
+    fake = world([{"confirmed": False}])
+    session = new_session()
+
+    pipeline.handle_turn(session, "Hello", NOW)
+
+    assert "Ask ONLY for the name" in fake.notes[-1]
 
 
 def test_wrong_weekday_is_replaced(world):
@@ -213,7 +240,6 @@ def test_patient_always_hears_the_booking_code(world):
 
 
 def test_spoken_day_uses_code_computed_weekday():
-    from datetime import date
     assert pipeline.spoken_day(date(2026, 10, 17)) == "Saturday the 17th of October"
     assert pipeline.spoken_day(date(2026, 10, 1)) == "Thursday the 1st of October"
     assert pipeline.spoken_day(date(2026, 10, 22)) == "Thursday the 22nd of October"
