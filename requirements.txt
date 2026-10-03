@@ -1,6 +1,6 @@
-holidays
-python-dotenv
-gspread
-groq
-gtts
-streamlit
+groq==1.7.0
+gspread==6.2.1
+gTTS==2.5.4
+holidays==0.105
+python-dotenv==1.2.3
+streamlit==1.64.0

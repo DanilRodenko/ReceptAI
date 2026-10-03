@@ -1,10 +1,11 @@
+import json
 import functools
 import secrets
 from datetime import datetime
 
 import gspread
 
-from config import GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
+from config import GOOGLE_CREDENTIALS_JSON, GOOGLE_CREDENTIALS_PATH, SPREADSHEET_ID, DATE_FORMAT, TIME_FORMAT
 
 
 @functools.lru_cache
@@ -12,7 +13,11 @@ def _get_worksheet():
     if not SPREADSHEET_ID:
         raise ValueError("SPREADSHEET_ID is not set in .env")
 
-    gc = gspread.service_account(filename=GOOGLE_CREDENTIALS_PATH)
+    if GOOGLE_CREDENTIALS_JSON:
+        gc = gspread.service_account_from_dict(json.loads(GOOGLE_CREDENTIALS_JSON))
+    else:
+        gc = gspread.service_account(filename=GOOGLE_CREDENTIALS_PATH)
+    
     return gc.open_by_key(SPREADSHEET_ID).sheet1
 
 
