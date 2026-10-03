@@ -1,6 +1,4 @@
 from datetime import date, datetime
-from operator import imod
-from sys import int_info
 
 import pytest
 from app.rules import (
