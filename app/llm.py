@@ -29,6 +29,7 @@ def _complete(messages: list[dict], temperature: float, json_mode: bool = False)
     try:
         response = get_groq_client().chat.completions.create(**kwargs)
     except RateLimitError:
+        print("Rate limit hit, using fallback model")
         kwargs["model"] = GROQ_FALLBACK_MODEL
         response = get_groq_client().chat.completions.create(**kwargs)
 

@@ -11,10 +11,20 @@ from app.sheets import add_booking, get_booked_slots
 FIELDS = ("name", "service", "date", "time", "notes")
 REQUIRED_FIELDS = ("name", "service", "date", "time")
 
+# Ready-made question for each missing field, used when Sarah's own reply is rejected.
+QUESTIONS = {
+    "name": "May I have your full name, please?",
+    "service": "Which service would you like to book?",
+    "date": "Which day would suit you?",
+    "time": "What time would suit you?",
+}
+
 # Phrases Sarah must not say on her own: only the code decides what is booked or checked.
 CLAIMS_BOOKING = re.compile(r"\b(booked|confirmed|scheduled|reserved)\b", re.IGNORECASE)
 STALLING = re.compile(r"get back to you|i['’]?ll check|let me check", re.IGNORECASE)
 WEEKDAY = re.compile(r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", re.IGNORECASE)
+# Sentences glued together without a space: "John?We need..." - a sign of a broken reply.
+GLUED = re.compile(r"[a-z0-9][.?!][A-Z]")
 
 
 def merge_draft(draft: dict, extracted: dict) -> dict:
@@ -92,8 +102,9 @@ def _decide(session: dict, confirmed: bool, now: datetime) -> tuple[str, str]:
         known_day = f" The requested day is {spoken_day(day)}." if day else ""
         return (
             f"SYSTEM: Still missing: {', '.join(missing)}.{known_day} Nothing is booked. "
-            "Ask the patient for the missing details.",
-            f"Could you tell me the {' and '.join(missing)} for your appointment?",
+            f"Ask ONLY for the {missing[0]}, in one short sentence. "
+            "If the patient's last message was unclear, say you didn't catch it.",
+            QUESTIONS[missing[0]],  # one question at a time, like a real receptionist
         )
 
     start = requested_start(draft)
@@ -138,8 +149,8 @@ def _decide(session: dict, confirmed: bool, now: datetime) -> tuple[str, str]:
 
 
 def _breaks_rules(reply: str, session: dict, just_booked: bool) -> bool:
-    """True if Sarah's reply says something only the code is allowed to decide."""
-    if not reply.strip() or STALLING.search(reply):
+    """True if Sarah's reply is broken or says something only the code is allowed to decide."""
+    if not reply.strip() or STALLING.search(reply) or GLUED.search(reply):
         return True
     day = requested_day(session["draft"])
     mentioned = {name.lower() for name in WEEKDAY.findall(reply)}
